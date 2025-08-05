@@ -73,22 +73,57 @@
 @endauth
 
 @auth
-    @if (Auth::user()->role === 'siswa')
-    <title>Siswa Dashboard</title>
-<div class="sidebar">
-    <h4 class="text-white text-center py-4">Siswa Panel</h4>
-    <a href="{{ route('siswa.dashboard')}}">Dashboard</a>
-    <a href="{{ route('siswa.pengumpulan.index') }}">Pengumpulan Tugas</a>
-    <a href="{{ route('siswa.pengumpulan.riwayat') }}">Riwayat Tugas & Nilai</a>
-    <a href="{{ route('siswa.profil') }}">Profil</a>
-    <form action="{{ route('logout') }}" method="POST" class="m-0">
-    @csrf
-    <button type="submit" class="w-100 text-start btn btn-link text-white px-3 py-2" style="text-decoration: none;">
-        Logout
-    </button>
-</form>
+@if (Auth::user()->role === 'siswa')
+<title>Siswa Dashboard</title>
 
-</div>
+<!-- Modern Navbar Siswa -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand fw-bold text-primary" href="{{ route('siswa.dashboard') }}">
+            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135768.png" alt="logo" width="32" height="32" class="me-2">
+            PortalTugas.id
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSiswaModern" aria-controls="navbarSiswaModern" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSiswaModern">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link px-3 {{ request()->routeIs('siswa.dashboard') ? 'text-primary fw-semibold' : '' }}" href="{{ route('siswa.dashboard') }}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link px-3 {{ request()->routeIs('siswa.pengumpulan.index') ? 'text-primary fw-semibold' : '' }}" href="{{ route('siswa.pengumpulan.index') }}">Tugas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link px-3 {{ request()->routeIs('siswa.pengumpulan.riwayat') ? 'text-primary fw-semibold' : '' }}" href="{{ route('siswa.pengumpulan.riwayat') }}">Riwayat</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link px-3 {{ request()->routeIs('siswa.profil') ? 'text-primary fw-semibold' : '' }}" href="{{ route('siswa.profil') }}">Profil</a>
+                </li>
+
+                <!-- Dropdown Logout -->
+                <li class="nav-item dropdown ms-3">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="avatar" width="32" height="32" class="rounded-circle me-1">
+                        <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="{{ route('siswa.profil') }}">Profil Saya</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form action="{{ route('logout') }}" method="POST" class="px-3">
+                                @csrf
+                                <button type="submit" class="btn btn-sm btn-danger w-100">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
 @endif
 @endauth
 
@@ -99,5 +134,6 @@
     @yield('content')
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
