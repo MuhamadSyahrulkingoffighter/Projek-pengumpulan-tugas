@@ -16,7 +16,7 @@
                         </div>
                         <div>
                             <h6 class="mb-1 text-white-50">Tugas Aktif</h6>
-                            <h4 class="fw-bold">5</h4>
+                            <h4 class="fw-bold">{{ $tugasAktif }}</h4>
                             <small>Tugas yang belum dikumpulkan</small>
                         </div>
                     </div>
@@ -33,7 +33,7 @@
                         </div>
                         <div>
                             <h6 class="mb-1 text-white-50">Tugas Selesai</h6>
-                            <h4 class="fw-bold">12</h4>
+                            <h4 class="fw-bold">{{ $tugasTerkumpul }}</h4>
                             <small>Sudah dikumpulkan</small>
                         </div>
                     </div>
@@ -50,7 +50,7 @@
                         </div>
                         <div>
                             <h6 class="mb-1 text-white-50">Rata-Rata Nilai</h6>
-                            <h4 class="fw-bold">87</h4>
+                            <h4 class="fw-bold">{{ number_format($rataNilai, 2) }}</h4>
                             <small>Dari semua tugas yang dinilai</small>
                         </div>
                     </div>
@@ -68,51 +68,46 @@
                     <h5 class="mb-0 fw-semibold text-primary">📌 Tugas Terbaru</h5>
                 </div>
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item py-3 d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="mb-1">Matematika - Aljabar</h6>
-                            <small class="text-muted">Deadline: 10 Agustus 2025</small>
-                        </div>
-                        <span class="badge bg-primary">Belum Dikerjakan</span>
-                    </li>
-                    <li class="list-group-item py-3 d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="mb-1">Bahasa Indonesia - Puisi</h6>
-                            <small class="text-muted">Deadline: 9 Agustus 2025</small>
-                        </div>
-                        <span class="badge bg-success">Sudah Dikirim</span>
-                    </li>
-                    <li class="list-group-item py-3 d-flex justify-content-between align-items-start">
-                        <div>
-                            <h6 class="mb-1">IPA - Sistem Pernapasan</h6>
-                            <small class="text-muted">Deadline: 8 Agustus 2025</small>
-                        </div>
-                        <span class="badge bg-warning text-dark">Menunggu Nilai</span>
-                    </li>
+                    @forelse($tugasBaru as $t)
+                        @php
+                            $sudahKumpul = $t->pengumpulan()->where('siswa_id', Auth::user()->siswa->id)->exists();
+                            $nilai = $t->pengumpulan()->where('siswa_id', Auth::user()->siswa->id)->value('nilai');
+                        @endphp
+                        <li class="list-group-item py-3 d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ $t->mapel->nama_mapel ?? '-' }} - {{ $t->judul }}</h6>
+                                <small class="text-muted">Deadline: {{ \Carbon\Carbon::parse($t->deadline)->format('d M Y') }}</small>
+                            </div>
+                            @if($sudahKumpul && is_null($nilai))
+                                <span class="badge bg-warning text-dark">Menunggu Nilai</span>
+                            @elseif($sudahKumpul)
+                                <span class="badge bg-success">Sudah Dikirim</span>
+                            @else
+                                <span class="badge bg-primary">Belum Dikerjakan</span>
+                            @endif
+                        </li>
+                    @empty
+                        <li class="list-group-item text-muted">Belum ada tugas terbaru</li>
+                    @endforelse
                 </ul>
             </div>
         </div>
 
-        <!-- Kalender / Jadwal -->
+        <!-- Kalender -->
         <div class="col-lg-4">
             <div class="card border-0 shadow rounded-4">
                 <div class="card-header bg-white border-bottom">
-                    <h5 class="mb-0 fw-semibold text-primary">📅 Jadwal / Kalender</h5>
+                    <h5 class="mb-0 fw-semibold text-primary">📅 Kalender Tugas</h5>
                 </div>
                 <div class="card-body">
                     <ul class="list-unstyled">
-                        <li class="mb-3">
-                            <i class="bi bi-calendar3 me-2 text-primary"></i>
-                            <strong>8 Agustus:</strong> Tugas IPA (Sistem Pernapasan)
-                        </li>
-                        <li class="mb-3">
-                            <i class="bi bi-calendar3 me-2 text-primary"></i>
-                            <strong>9 Agustus:</strong> Tugas Bahasa Indonesia (Puisi)
-                        </li>
-                        <li class="mb-3">
-                            <i class="bi bi-calendar3 me-2 text-primary"></i>
-                            <strong>10 Agustus:</strong> Tugas Matematika (Aljabar)
-                        </li>
+                        @foreach($tugasBaru as $t)
+                            <li class="mb-3">
+                                <i class="bi bi-calendar3 me-2 text-primary"></i>
+                                <strong>{{ \Carbon\Carbon::parse($t->deadline)->format('d M') }}:</strong>
+                                {{ $t->mapel->nama_mapel ?? '-' }} ({{ $t->judul }})
+                            </li>
+                        @endforeach
                     </ul>
                     <div class="text-muted text-center mt-4">
                         <em>Kalender lengkap segera hadir...</em>

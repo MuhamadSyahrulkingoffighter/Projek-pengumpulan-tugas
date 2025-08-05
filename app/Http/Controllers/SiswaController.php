@@ -6,26 +6,29 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Siswa;
 use App\Models\Tugas;
 use App\Models\Pengumpulan;
-use App\Models\Jadwal;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class SiswaController extends Controller
 {
     public function dashboard()
     {
-        $siswa = Siswa::where('user_id', Auth::id())->first();
+        $siswa = Siswa::where('user_id', Auth::id())->firstOrFail();
 
+        // Semua tugas sesuai kelas siswa
         $tugas = Tugas::where('kelas_id', $siswa->kelas_id)->get();
 
+        // Tugas yang belum deadline
         $tugasAktif = $tugas->where('deadline', '>=', now())->count();
 
+        // Tugas yang dikumpulkan oleh siswa ini
         $tugasTerkumpul = Pengumpulan::where('siswa_id', $siswa->id)->count();
 
+        // Nilai rata-rata dari tugas yang sudah dinilai
         $rataNilai = Pengumpulan::where('siswa_id', $siswa->id)
                         ->whereNotNull('nilai')
-                        ->avg('nilai');
+                        ->avg('nilai') ?? 0;
 
+        // Tugas terbaru dari kelas siswa (limit 5)
         $tugasBaru = $tugas->sortByDesc('created_at')->take(5);
 
         return view('siswa.dashboard', compact(
@@ -33,21 +36,21 @@ class SiswaController extends Controller
         ));
     }
 
-
     public function daftarPengumpulan()
     {
-        $pengumpulan = Pengumpulan::with('tugas', 'siswa')->where('siswa_id', Auth::user()->siswa->id)->get();
+        $siswa = Siswa::where('user_id', Auth::id())->firstOrFail();
+
+        $pengumpulan = Pengumpulan::with('tugas')
+            ->where('siswa_id', $siswa->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view('siswa.pengumpulan.index', compact('pengumpulan'));
     }
 
     public function formPengumpulan()
     {
-        $siswa = Siswa::where('user_id', Auth::id())->first();
-
-        if (!$siswa) {
-            return back()->with('error', 'Data siswa tidak ditemukan.');
-        }
+        $siswa = Siswa::where('user_id', Auth::id())->firstOrFail();
 
         $tugas = Tugas::where('kelas_id', $siswa->kelas_id)->get();
 
@@ -61,13 +64,9 @@ class SiswaController extends Controller
             'file' => 'required|file|max:2048',
         ]);
 
+        $siswa = Siswa::where('user_id', Auth::id())->firstOrFail();
+
         $path = $request->file('file')->store('pengumpulan', 'public');
-
-        $siswa = Siswa::where('user_id', Auth::id())->first();
-
-        if (!$siswa) {
-            return back()->with('error', 'Data siswa tidak ditemukan.');
-        }
 
         Pengumpulan::create([
             'tugas_id' => $request->tugas_id,
@@ -77,13 +76,10 @@ class SiswaController extends Controller
 
         return redirect()->route('siswa.pengumpulan.index')->with('success', 'Tugas berhasil dikumpulkan!');
     }
+
     public function riwayatNilai()
     {
-        $siswa = Siswa::where('user_id', Auth::id())->first();
-
-        if (!$siswa) {
-            abort(404, 'Siswa tidak ditemukan');
-        }
+        $siswa = Siswa::where('user_id', Auth::id())->firstOrFail();
 
         $riwayat = Pengumpulan::with('tugas')
             ->where('siswa_id', $siswa->id)
@@ -92,7 +88,8 @@ class SiswaController extends Controller
 
         return view('siswa.pengumpulan.riwayat', compact('riwayat'));
     }
-        public function profil()
+
+    public function profil()
     {
         $user = Auth::user();
         return view('siswa.profil', [
@@ -100,5 +97,4 @@ class SiswaController extends Controller
             'siswa' => $user->siswa,
         ]);
     }
-
 }
