@@ -22,7 +22,6 @@
                 <div class="card-body">
                     <h5 class="card-title">Sudah Dikumpulkan</h5>
                     <p class="card-text">{{ $tugasTerkumpul }} tugas</p>
-                </div>
             </div>
         </div>
 
