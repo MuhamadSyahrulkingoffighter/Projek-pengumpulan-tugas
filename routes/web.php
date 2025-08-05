@@ -18,6 +18,7 @@ Route::middleware(['auth', CekRole::class . ':admin' ])->prefix('admin')->group(
 
     Route::get('/guru', [DashboardController::class, 'guruIndex'])->name('admin.guru.index');
     Route::post('/guru', [DashboardController::class, 'guruStore']);
+    Route::get('/guru/create', [DashboardController::class, 'guruCreate'])->name('admin.guru.create');
     Route::get('/guru/{id}/edit', [DashboardController::class, 'guruEdit'])->name('admin.guru.edit');
     Route::put('/guru/{id}', [DashboardController::class, 'guruUpdate'])->name('admin.guru.update');
     Route::delete('/guru/{id}', [DashboardController::class, 'guruDelete']);

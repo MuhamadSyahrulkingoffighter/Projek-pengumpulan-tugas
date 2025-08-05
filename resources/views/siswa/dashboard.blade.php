@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-4">
+<div class="container py-4 mt-5">
     <h2 class="mb-4 fw-bold text-primary">Hai, {{ Auth::user()->name }} 👋</h2>
     <p class="text-muted">Berikut adalah ringkasan aktivitas tugasmu hari ini.</p>
 
